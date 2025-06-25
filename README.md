@@ -1,4 +1,4 @@
-# Spicy Topping - UTMT Room Loader
+# Spicy Topping - CYOP
 
 This repository contains most of the code present in Spicy Topping for loading CYOP levels.
 The code is mostly based on [Mitchell1711's CYOP fork](https://github.com/Mitchell1711/pt-cyop), albeit "rewritten" to be more in line with my coding style.  
