@@ -54,4 +54,7 @@
 	"spr_citydarkprops" : "spr_tile_citydarkprops",
 	"spr_interiortile" : "spr_tile_interior",
 	"spr_streettiles" : "spr_tile_street",
+	
+	"spr_warlab" : "tilespr_tile_warlab",
+	"spr_waroutsidetiles" : "tilespr_tile_waroutside",
 }
