@@ -1,7 +1,6 @@
-// Why not just use a stack instead of an array?
-repeat (array_length(global.cyop_surfaceend))
+repeat ds_stack_size(global.cyop_surfaceStack)
 {
-	var surf = array_pop(global.cyop_surfaceend)
-	if (surface_exists(surf))
-		surface_free(surf)
+	var surface = ds_stack_pop(global.cyop_surfaceStack)
+	if surface_exists(surface)
+		surface_free(surface)
 }

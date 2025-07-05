@@ -88,9 +88,10 @@ function cyop_get_level_roomdata()
 {
 	// String pointing to the room file
 	// If room file thats for AFOM exists, use that instead
-	var roomfile = cyop_get_level_dir() + "rooms/" + global.cyop_levelroom + ".json"
-	if (file_exists(cyop_get_level_dir() + "rooms/" + global.cyop_levelroom + "_wfixed.json") && global.cyop_afom)
-		roomfile = cyop_get_level_dir() + "rooms/" + global.cyop_levelroom + "_wfixed.json"
+	var roompath = concat(cyop_get_level_dir(), "rooms/", global.cyop_levelroom)
+	var roomfile = concat(roompath, ".json")
+	if (file_exists(concat(roompath, "_wfixed.json")) && global.cyop_afom)
+		roomfile = concat(roompath, "_wfixed.json")
 	
 	// Cool, gonna do anything if the room is missing?
 	// No? Okay then.
@@ -98,31 +99,30 @@ function cyop_get_level_roomdata()
 		show_message("ERROR: " + global.cyop_level + " room " + global.cyop_levelroom + " missing!")
 	
 	// Get room data from room file
-	var file = file_text_open_read(roomfile)
-	var filestr = file_text_read_all(file)
-	var roomjson = json_parse(filestr)
-	file_text_close(file)
+	var roomjson = json_parse(file_text_read_all(roomfile))
 	
 	// The object map that will be used for the object indices (if the objects don't use names)
 	// If the room was made using a version of CYOP made for the Noise Update,
 	// then use the AFOM/Noise Update object map
-	var objectmap = global.cyop_objectmap
+	var objectMap = global.cyop_objectmap
 	if (variable_struct_exists(roomjson, "isNoiseUpdate") && roomjson.isNoiseUpdate)
-		objectmap = global.cyop_afomobjectmap
+		objectMap = global.cyop_afomobjectmap
+	var objectMapLength = array_length(objectMap)
 	
 	// Fixes for older CYOP versions
 	// Could probably be better than whatever this is
 	if (roomjson.editorVersion < 6)
 	{
 		var room_instances = roomjson[$ "instances"]
-		for (i = 0; i < array_length(room_instances); i++)
+		var roomInstanceLength = array_length(room_instances)
+		for (var i = 0; i < roomInstanceLength; i++)
 		{
 			var instance_obj = room_instances[i].object
-			if (instance_obj <= array_length(objectmap))
+			if (instance_obj <= objectMapLength)
 			{
-				room_instances[i].object = asset_get_index(objectmap[instance_obj])
+				room_instances[i].object = asset_get_index(objectMap[instance_obj])
 				if (room_instances[i].object == -1)
-					warn("Missing object! - ", objectmap[instance_obj])
+					warn("Missing object! - ", objectMap[instance_obj])
 					
 				var objvariables = room_instances[i][$ "variables"]
 				if (variable_struct_exists(objvariables, "content"))
@@ -132,22 +132,22 @@ function cyop_get_level_roomdata()
 					{
 						if (is_array(contentvar))
 						{
-							for (ii = 0; ii < array_length(contentvar); ii++)
+							for (var ii = 0; ii < array_length(contentvar); ii++)
 							{
 								if (is_struct(contentvar[ii]))
 									continue;
 								
 								var original_index = contentvar[ii]
-								contentvar[ii] = asset_get_index(objectmap[contentvar[ii]])
+								contentvar[ii] = asset_get_index(objectMap[contentvar[ii]])
 								if (contentvar[ii] == -1)
-									warn("Missing object! - ", objectmap[original_index])
+									warn("Missing object! - ", objectMap[original_index])
 							}
 						}
 						else
 						{
-							contentvar = asset_get_index(objectmap[contentvar])
+							contentvar = asset_get_index(objectMap[contentvar])
 							if (contentvar == -1)
-								warn("Missing object! - ", objectmap[contentvar])
+								warn("Missing object! - ", objectMap[contentvar])
 						}
 					}
 					else
@@ -161,37 +161,27 @@ function cyop_get_level_roomdata()
 			}
 		}
 		
-		switch roomjson.editorVersion
+		var bgNames = variable_struct_get_names(roomjson.backgrounds)
+		var bgNameLength = array_length(bgNames)
+		for (var i = 0; i < bgNameLength; i++)
 		{
-			case 0:
-				var _bgnames = variable_struct_get_names(roomjson.backgrounds)
-				for (var i = 0; i < array_length(_bgnames); i++)
-				{
-					var _bg = variable_struct_get(roomjson.backgrounds, _bgnames[i])
-					if (!variable_struct_exists(_bg, "hspeed"))
-					{
-						variable_struct_set(_bg, "hspeed", 0)
-						variable_struct_set(_bg, "vspeed", 0)
-					}
-				}
-			case 1:
-				variable_struct_set(roomjson.properties, "song", "")
-			case 2:
-				variable_struct_set(roomjson.properties, "songTransitionTime", 100)
-			case 3:
-				var _bgnames = variable_struct_get_names(roomjson.backgrounds)
-				for (var i = 0; i < array_length(_bgnames); i++)
-				{
-					var _bg = variable_struct_get(roomjson.backgrounds, _bgnames[i])
-					if (!variable_struct_exists(_bg, "image_speed"))
-					{
-						variable_struct_set(_bg, "image_speed", 15)
-						variable_struct_set(_bg, "panic_sprite", -1)
-					}
-				}
-				break
+			var bg = variable_struct_get(roomjson.backgrounds, bgNames[i])
+			if !variable_struct_exists(bg, "hspeed")
+				bg[$ "hspeed"] = 0
+			if !variable_struct_exists(bg, "vspeed")
+				bg[$ "vspeed"] = 0
+			
+			if !variable_struct_exists(bg, "image_speed")
+				bg[$ "image_speed"] = 15
+			if !variable_struct_exists(bg, "panic_sprite")
+				bg[$ "panic_sprite"] = -1
 		}
-	
+		
+		if !variable_struct_exists(roomjson.properties, "song")
+			roomjson.properties[$ "song"] = ""
+		if !variable_struct_exists(roomjson.properties, "songTransitionTime")
+			roomjson.properties[$ "songTransitionTime"] = 100
+		
 		roomjson.editorVersion = global.cyopversion
 	}
 	else
@@ -219,9 +209,9 @@ function cyop_get_level_roomdata()
 						if (!is_string(contentvar[ii]))
 						{
 							var original_index = contentvar[ii]
-							contentvar[ii] = asset_get_index(objectmap[contentvar[ii]])
+							contentvar[ii] = asset_get_index(objectMap[contentvar[ii]])
 							if (contentvar[ii] == -1)
-								warn("Missing object! - ", objectmap[original_index])
+								warn("Missing object! - ", objectMap[original_index])
 						}
 						else
 						{
@@ -236,9 +226,9 @@ function cyop_get_level_roomdata()
 				{
 					if (!is_string(contentvar))
 					{
-						contentvar = asset_get_index(objectmap[contentvar])
+						contentvar = asset_get_index(objectMap[contentvar])
 						if (contentvar == -1)
-							warn("Missing object! - ", objectmap[contentvar])
+							warn("Missing object! - ", objectMap[contentvar])
 					}
 					else
 						contentvar = asset_get_index(contentvar)
@@ -425,28 +415,42 @@ function cyop_init_tilelayer(_layer, _tile_data)
 }
 
 // Initialize CYOP background layer
-///@param layer
-///@param bg_data
-function cyop_init_bglayer(_layer, _bg_data)
+///@param depth
+///@param bgdata
+function cyop_init_bglayer(_depth, _bgdata)
 {
-	if (!layer_exists(concat("Backgrounds_", _layer)))
+	var layerName = concat("Backgrounds_", _depth)
+	var layerDepth = (_depth * 10) + 500
+	if !layer_exists(layerName)
 	{
-		if (real(_layer) < 0)
-			layer_create((real(_layer) * 10 + 500) * -1, concat("Backgrounds_", _layer))
+		if (_depth < 0)
+			layer_create(layerDepth * -1, layerName)
 		else
-			layer_create(real(_layer) * 10 + 500, concat("Backgrounds_", _layer))
+			layer_create(layerDepth, layerName)
 	}
 		
 	with (obj_CYOPBGHandler)
 	{
-		if (bgLayer == _layer)
+		if (bgLayer == _depth)
 			instance_destroy()
 	}
 	
-	with (instance_create_layer(0, 0, concat("Backgrounds_", _layer), obj_CYOPBGHandler))
+	with (instance_create_layer(0, 0, layerName, obj_CYOPBGHandler))
 	{
-		bgLayer = _layer
-		bgHandler_init(variable_struct_get(_bg_data, _layer))
+		bgLayer = _depth
+		bgSprite = cyop_get_value(_bgdata.sprite)
+		if is_string(bgSprite)
+			warn("Missing background: ", bgSprite)
+		
+		bgX = _bgdata.x
+		bgY = _bgdata.y
+		scrollX = _bgdata.scroll_x
+		scrollY = _bgdata.scroll_y
+		tileH = _bgdata.tile_x
+		tileV = _bgdata.tile_y
+		hsp = _bgdata.hspeed
+		vsp = _bgdata.vspeed
+		bgSpeed = _bgdata.image_speed
 	}
 }
 

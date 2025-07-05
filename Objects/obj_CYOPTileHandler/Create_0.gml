@@ -49,16 +49,15 @@ function tileHandler_checkSurfaces()
 	
 	if createsurf
 	{
-		if (surface_exists(tilemap_surface))
+		if surface_exists(tilemap_surface)
 			surface_free(tilemap_surface)
 		tilemap_surface = surface_create(surfaceW, surfaceH)
 		
-		if (surface_exists(tilemap_oldsurface))
+		if surface_exists(tilemap_oldsurface)
 			surface_free(tilemap_oldsurface)
 		tilemap_oldsurface = surface_create(surfaceW, surfaceH)
 		
-		array_push(global.cyop_surfaceend, tilemap_surface)
-		array_push(global.cyop_surfaceend, tilemap_oldsurface)
+		ds_stack_push(global.cyop_surfaceStack, tilemap_surface, tilemap_oldsurface)
 	}
 }
 

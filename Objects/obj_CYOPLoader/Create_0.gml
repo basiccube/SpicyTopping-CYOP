@@ -2,8 +2,7 @@ roomdata = global.cyop_roomdata
 if is_undefined(roomdata)
 	exit;
 
-// This should be a stack instead of an array
-global.cyop_surfaceend = []
+global.cyop_surfaceStack = ds_stack_create()
 
 // Look through all of the instances and set them up
 for (var i = 0; i < array_length(roomdata.instances); i++)
@@ -91,12 +90,14 @@ for (var i = 0; i < array_length(roomdata.instances); i++)
 }
 
 // Set up tile layers
-var tiledata = roomdata.tile_data
-var tilelayers = variable_struct_get_names(tiledata)
-for (i = 0; i < array_length(tilelayers); i++)
-	cyop_init_tilelayer(tilelayers[i], tiledata)
+var tileData = roomdata.tile_data
+var tileLayers = variable_struct_get_names(tileData)
+var tileLayerLength = array_length(tileLayers)
+for (i = 0; i < tileLayerLength; i++)
+	cyop_init_tilelayer(tileLayers[i], tileData)
 
 // Set up background layers
-var bglayers = variable_struct_get_names(roomdata.backgrounds)
-for (i = 0; i < array_length(bglayers); i++)
-	cyop_init_bglayer(bglayers[i], roomdata.backgrounds)
+var bgLayers = variable_struct_get_names(roomdata.backgrounds)
+var bgLayerLength = array_length(bgLayers)
+for (i = 0; i < bgLayerLength; i++)
+	cyop_init_bglayer(real(bgLayers[i]), variable_struct_get(roomdata.backgrounds, bgLayers[i]))

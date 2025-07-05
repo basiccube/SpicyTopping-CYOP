@@ -1,0 +1,1 @@
+ds_stack_destroy(global.cyop_surfaceStack)
