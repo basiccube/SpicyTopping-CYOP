@@ -24,36 +24,36 @@ trace("CYOP directory: ", global.cyop_towerdir)
 
 // Get CYOP object compatibility map
 global.cyop_objectmap = -4
-if (file_exists("spicytopping/cyopobjectids.json"))
-	global.cyop_objectmap = json_parse(file_text_read_all("spicytopping/cyopobjectids.json"))
+if (file_exists("spicytopping/cyop/cyop_objectids.json"))
+	global.cyop_objectmap = json_parse(file_text_read_all("spicytopping/cyop/cyop_objectids.json"))
 else
 	show_message("CYOP object compatibility file not found! This will cause levels made using old versions of CYOP to not load correctly and will more than likely crash!")
 	
 // Get AFOM v2 object compatibility map
 global.cyop_afomobjectmap = -4
-if (file_exists("spicytopping/afomobjectids.json"))
-	global.cyop_afomobjectmap = json_parse(file_text_read_all("spicytopping/afomobjectids.json"))
+if (file_exists("spicytopping/cyop/afom_objectids.json"))
+	global.cyop_afomobjectmap = json_parse(file_text_read_all("spicytopping/cyop/afom_objectids.json"))
 else
 	show_message("AFOM object compatibility file not found! This will cause levels made using early versions of AFOM v2 to not load correctly and will more than likely crash!")
 	
 // Get CYOP tileset compatibility map
 global.cyop_tilesetmap = -4
-if (file_exists("spicytopping/cyoptilesets.json"))
-	global.cyop_tilesetmap = json_parse(file_text_read_all("spicytopping/cyoptilesets.json"))
+if (file_exists("spicytopping/cyop/cyop_tilesets.json"))
+	global.cyop_tilesetmap = json_parse(file_text_read_all("spicytopping/cyop/cyop_tilesets.json"))
 else
 	show_message("CYOP tileset map file not found! Some tilesets will not work properly!")
 	
 // Get CYOP sprite compatibility map
 global.cyop_spritemap = -4
-if (file_exists("spicytopping/cyopsprites.json"))
-	global.cyop_spritemap = json_parse(file_text_read_all("spicytopping/cyopsprites.json"))
+if (file_exists("spicytopping/cyop/cyop_sprites.json"))
+	global.cyop_spritemap = json_parse(file_text_read_all("spicytopping/cyop/cyop_sprites.json"))
 else
 	show_message("CYOP sprite map file not found! Some sprites won't appear properly!")
 	
 // Get CYOP music compatibility map
 global.cyop_musicmap = -4
-if (file_exists("spicytopping/cyopmusic.json"))
-	global.cyop_musicmap = json_parse(file_text_read_all("spicytopping/cyopmusic.json"))
+if (file_exists("spicytopping/cyop/cyop_music.json"))
+	global.cyop_musicmap = json_parse(file_text_read_all("spicytopping/cyop/cyop_music.json"))
 else
 	show_message("CYOP music map file not found! Base game music in levels might not play!")
 	
